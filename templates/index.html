@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student Registration - CRUD App</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f6f8;
+            padding: 30px;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 25px 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 { margin-bottom: 20px; color: #2c3e50; }
+        h2 { margin: 20px 0 10px; color: #2c3e50; }
+
+        .flash {
+            padding: 10px 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .flash.success { background: #d4edda; color: #155724; }
+        .flash.error { background: #f8d7da; color: #721c24; }
+
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        form input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        form button {
+            grid-column: span 2;
+            padding: 10px;
+            background: #2c7be5;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 15px;
+        }
+        form button:hover { background: #1a5cb8; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            text-align: left;
+            font-size: 14px;
+        }
+        th { background: #2c3e50; color: #fff; }
+
+        .actions a {
+            margin-right: 10px;
+            text-decoration: none;
+            font-size: 13px;
+            padding: 5px 10px;
+            border-radius: 4px;
+        }
+        .edit-link { background: #ffc107; color: #000; }
+        .delete-link { background: #dc3545; color: #fff; }
+
+        .cancel-link {
+            display: inline-block;
+            margin-top: 5px;
+            font-size: 13px;
+            color: #555;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Student Registration System</h1>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="flash {{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+
+        <!-- CREATE / UPDATE FORM -->
+        <h2>{% if edit_student %}Edit Student{% else %}Register New Student{% endif %}</h2>
+        <form action="{% if edit_student %}{{ url_for('update_student', student_id=edit_student.id) }}{% else %}{{ url_for('add_student') }}{% endif %}" method="POST">
+            <input type="text" name="name" placeholder="Full Name"
+                   value="{{ edit_student.name if edit_student else '' }}" required>
+            <input type="email" name="email" placeholder="Email"
+                   value="{{ edit_student.email if edit_student else '' }}" required>
+            <input type="text" name="course" placeholder="Course"
+                   value="{{ edit_student.course if edit_student else '' }}" required>
+            <input type="number" name="age" placeholder="Age"
+                   value="{{ edit_student.age if edit_student else '' }}" required>
+            <button type="submit">{% if edit_student %}Update Student{% else %}Add Student{% endif %}</button>
+        </form>
+        {% if edit_student %}
+            <a class="cancel-link" href="{{ url_for('index') }}">Cancel Edit</a>
+        {% endif %}
+
+        <!-- READ - LIST -->
+        <h2>Registered Students</h2>
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Course</th>
+                <th>Age</th>
+                <th>Actions</th>
+            </tr>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.id }}</td>
+                <td>{{ student.name }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.course }}</td>
+                <td>{{ student.age }}</td>
+                <td class="actions">
+                    <a class="edit-link" href="{{ url_for('edit_student', student_id=student.id) }}">Edit</a>
+                    <a class="delete-link" href="{{ url_for('delete_student', student_id=student.id) }}"
+                       onclick="return confirm('Delete this student record?');">Delete</a>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6" style="text-align:center;">No students registered yet.</td>
+            </tr>
+            {% endfor %}
+        </table>
+    </div>
+</body>
+</html>
